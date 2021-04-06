@@ -1,11 +1,12 @@
 package com.company;
 
-import java.io.IOException;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Game {
     private final boolean SHOULD_BE_DIFFERENT = true;
+    private final int MIN_BOUND = 1;
+    private final int MAX_BOUND = 10;
 
     private int numberA;
     private int numberB;
@@ -28,14 +29,14 @@ public class Game {
 
     // Not sure if numbers should be different so I added 'shouldBeDifferent' boolean
     private void initNumbers() {
-        numberA = ThreadLocalRandom.current().nextInt(1, 11);
-        numberB = ThreadLocalRandom.current().nextInt(1, 11);
+        numberA = ThreadLocalRandom.current().nextInt(this.MIN_BOUND, this.MAX_BOUND + 1);
+        numberB = ThreadLocalRandom.current().nextInt(this.MIN_BOUND, this.MAX_BOUND + 1);
         while (this.SHOULD_BE_DIFFERENT && numberB == numberA) {
-            numberB = ThreadLocalRandom.current().nextInt(1, 11);
+            numberB = ThreadLocalRandom.current().nextInt(this.MIN_BOUND, this.MAX_BOUND + 1);
         }
-        numberC = ThreadLocalRandom.current().nextInt(1, 11);
+        numberC = ThreadLocalRandom.current().nextInt(this.MIN_BOUND, this.MAX_BOUND + 1);
         while (this.SHOULD_BE_DIFFERENT && (numberC == numberA || numberC == numberB) ) {
-            numberC = ThreadLocalRandom.current().nextInt(1, 11);
+            numberC = ThreadLocalRandom.current().nextInt(this.MIN_BOUND, this.MAX_BOUND + 1);
         }
     }
 
@@ -44,13 +45,8 @@ public class Game {
         int userNumber = this.getUserNumber();
         int score = this.getScore(userNumber);
 
-        if (score == 3) {
-            return true;
-        }
-        else {
-            System.out.println("Score : " + score);
-            return false;
-        }
+        System.out.println("Score : " + score);
+        return score == 3;
     }
 
     private int getScore(int userNumber) {
