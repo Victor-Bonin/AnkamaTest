@@ -5,47 +5,91 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Game {
     private final boolean SHOULD_BE_DIFFERENT = true;
-    private final int MIN_BOUND = 1;
-    private final int MAX_BOUND = 10;
+
+    private Logger logger = new Logger();
+    private RandomGenerator generator = new RandomGenerator();
+    private InputManager inputManager = new InputManager(logger);
 
     private int numberA;
     private int numberB;
     private int numberC;
 
 
+    private static class Logger {
+
+        void log(String text) {
+            System.out.println(text);
+        }
+
+        void err(String text) {
+            System.err.println(text);
+        }
+    }
+
+
+    private static class RandomGenerator {
+
+        int randomInt(int inclusiveOrigin, int exclusiveBound) {
+            return ThreadLocalRandom.current().nextInt(inclusiveOrigin, exclusiveBound);
+        }
+    }
+
+    private static class InputManager {
+
+        private Logger logger;
+
+        public InputManager(Logger logger) {
+            this.logger = logger;
+        }
+
+        int readNumber() {
+            try {
+                logger.log("Please make a guess");
+                Scanner in = new Scanner(System.in);
+                return in.nextInt();
+            } catch (Exception exc) {
+                logger.err("Invalid Format!");
+                return this.readNumber();
+            }
+        }
+    }
+
+
     public void play() {
-        System.out.println("WELCOME TO THE SUPER GAME");
+        logger.log("WELCOME TO THE SUPER GAME");
         this.initNumbers();
 
         boolean isGameOver = false;
         while (!isGameOver) {
             isGameOver = this.playTurn();
         }
-        System.out.println("GG");
-        System.out.println("Secret numbers were "+ this.numberA + ", " + this.numberB + " and " + this.numberC);
+        logger.log("GG");
+        logger.log("Secret numbers were "+ this.numberA + ", " + this.numberB + " and " + this.numberC);
 
     }
 
 
     // Not sure if numbers should be different so I added 'shouldBeDifferent' boolean
     private void initNumbers() {
-        numberA = ThreadLocalRandom.current().nextInt(this.MIN_BOUND, this.MAX_BOUND + 1);
-        numberB = ThreadLocalRandom.current().nextInt(this.MIN_BOUND, this.MAX_BOUND + 1);
+        int numberMinimumBound = 1;
+        int numberMaximumBound = 11;
+        numberA = generator.randomInt(numberMinimumBound, numberMaximumBound);
+        numberB = generator.randomInt(numberMinimumBound, numberMaximumBound);
         while (this.SHOULD_BE_DIFFERENT && numberB == numberA) {
-            numberB = ThreadLocalRandom.current().nextInt(this.MIN_BOUND, this.MAX_BOUND + 1);
+            numberB = generator.randomInt(numberMinimumBound, numberMaximumBound);
         }
-        numberC = ThreadLocalRandom.current().nextInt(this.MIN_BOUND, this.MAX_BOUND + 1);
-        while (this.SHOULD_BE_DIFFERENT && (numberC == numberA || numberC == numberB) ) {
-            numberC = ThreadLocalRandom.current().nextInt(this.MIN_BOUND, this.MAX_BOUND + 1);
+        numberC = generator.randomInt(numberMinimumBound, numberMaximumBound);
+        while (this.SHOULD_BE_DIFFERENT && (numberC == numberA || numberC == numberB)) {
+            numberC = generator.randomInt(numberMinimumBound, numberMaximumBound);
         }
     }
 
 
     private boolean playTurn() {
-        int userNumber = this.getUserNumber();
+        int userNumber = inputManager.readNumber();
         int score = this.getScore(userNumber);
 
-        System.out.println("Score : " + score);
+        logger.log("Score : " + score);
         return score == 3;
     }
 
@@ -55,17 +99,5 @@ public class Game {
         if (userNumber % numberB == 0) { score ++; }
         if (userNumber % numberC == 0) { score ++; }
         return score;
-    }
-
-    private int getUserNumber() {
-        try {
-            System.out.println("Please make a guess");
-            Scanner in = new Scanner(System.in);
-            return in.nextInt();
-        }
-        catch (Exception exc) {
-            System.err.println("Invalid Format!");
-            return this.getUserNumber();
-        }
     }
 }
